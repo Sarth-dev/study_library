@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import StudentCard from "@/src/components/admin/StudentCard";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/students";
+const API_URL = process.env.NEXT_PUBLIC_API_URL_STUDENT || "http://localhost:5000/api/students";
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
