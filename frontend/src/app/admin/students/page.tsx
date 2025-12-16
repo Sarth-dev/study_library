@@ -3,7 +3,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import StudentCard from "@/src/components/admin/StudentCard";
-import StudentProfile from "@/src/components/admin/StudentProfile"; // ✅ NEW
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL_STUDENT ||
@@ -11,17 +10,16 @@ const API_URL =
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  useEffect(() => {
-}, [selectedStudentId]);
-
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState(""); // 🔍 search state
 
   const fetchStudents = useCallback(async () => {
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
-      setStudents(data);
+      setStudents(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch students", err);
     } finally {
       setLoading(false);
     }
@@ -31,31 +29,54 @@ export default function AdminStudentsPage() {
     fetchStudents();
   }, [fetchStudents]);
 
-  if (loading) return <p>Loading students...</p>;
+  // 🔎 filter students by name
+  const filteredStudents = students.filter(
+    (student) =>
+      student &&
+      student.name &&
+      student.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return <p className="text-center">Loading students...</p>;
+  }
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Students</h2>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h2 className="text-xl font-semibold">Students</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {students.filter(Boolean).map((student) => (
-          <StudentCard
-            key={student._id}
-            student={student}
-            onUpdate={fetchStudents}
-            onOpenProfile={() => setSelectedStudentId(student._id)} // ✅
-          />
-        ))}
+        {/* 🔍 Search Bar */}
+        <input
+          type="text"
+          placeholder="Search by student name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:w-72 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+        />
       </div>
 
-      {/* PROFILE DRAWER */}
-      {selectedStudentId && (
-        <StudentProfile
-          studentId={selectedStudentId}
-          onClose={() => setSelectedStudentId(null)}
-          onUpdate={fetchStudents}
-        />
+      {/* Empty state */}
+      {filteredStudents.length === 0 && (
+        <p className="text-gray-500 text-sm">
+          No students found.
+        </p>
       )}
+
+      {/* Student Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredStudents
+          .filter(Boolean)
+          .map((student) => (
+            <StudentCard
+              key={student._id}
+              student={student}
+              onUpdate={fetchStudents} onOpenProfile={function (): void {
+                throw new Error("Function not implemented.");
+              } }            />
+          ))}
+      </div>
     </div>
   );
 }
