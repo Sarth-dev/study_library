@@ -3,7 +3,7 @@
 
 import { submitAdmission } from "@/src/lib/api";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function StepReview({ data, onBack }: any) {
   const router = useRouter();
@@ -11,12 +11,39 @@ export default function StepReview({ data, onBack }: any) {
   const [error, setError] = useState("");
   const [consent, setConsent] = useState(false);
 
+  console.log("PHOTO VALUE:", data.photo);
+console.log("PHOTO TYPE:", typeof data.photo);
+
   const [plan, setPlan] = useState<"FULL_TIME" | "HALF_TIME">("FULL_TIME");
 
   const plans = {
-    FULL_TIME: { fee: 800, dueDate: 1, label: "Full Time", desc: "Unlimited study hours" },
-    HALF_TIME: { fee: 500, dueDate: 1, label: "Half Time", desc: "Limited daily hours" },
+    FULL_TIME: {
+      fee: 800,
+      dueDate: 1,
+      label: "Full Time",
+      desc: "Unlimited study hours",
+    },
+    HALF_TIME: {
+      fee: 500,
+      dueDate: 1,
+      label: "Half Time",
+      desc: "Limited daily hours",
+    },
   };
+
+  // 🔥 Photo preview from StepPhoto
+  const photoPreview = data.photo
+    ? URL.createObjectURL(data.photo)
+    : null;
+
+  // Cleanup preview URL
+  useEffect(() => {
+    return () => {
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [photoPreview]);
 
   const submit = async () => {
     if (!consent) return;
@@ -33,7 +60,7 @@ export default function StepReview({ data, onBack }: any) {
       formData.append("education", data.education);
       formData.append("seatNo", data.seatNo);
 
-      formData.append("planType", plan);                 // 🔥
+      formData.append("planType", plan);
       formData.append("monthlyFee", String(selectedPlan.fee));
       formData.append("dueDate", String(selectedPlan.dueDate));
       formData.append("whatsappConsent", String(consent));
@@ -57,16 +84,34 @@ export default function StepReview({ data, onBack }: any) {
       <div className="text-center">
         <h2 className="text-lg font-semibold">Review & Choose Plan</h2>
         <p className="text-xs text-gray-500">
-          Select a study plan that suits your routine
+          Please verify your details before submitting
         </p>
       </div>
 
-      {/* Student Info */}
-      <div className="rounded-xl border p-4 bg-white space-y-1">
-        <p><strong>Name:</strong> {data.name}</p>
-        <p><strong>Phone:</strong> {data.phone}</p>
-        <p><strong>Education:</strong> {data.education}</p>
-        <p><strong>Seat No:</strong> {data.seatNo}</p>
+      {/* Student Info + Photo */}
+      <div className="rounded-xl border p-4 bg-white">
+        <div className="flex items-center gap-4">
+          {/* Photo */}
+          <div className="h-20 w-20 rounded-xl overflow-hidden border bg-gray-100 flex items-center justify-center">
+            {photoPreview ? (
+              <img
+                src={photoPreview}
+                alt="Student photo"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="text-xs text-gray-400">No Photo</span>
+            )}
+          </div>
+
+          {/* Details */}
+          <div className="space-y-1">
+            <p><strong>Name:</strong> {data.name}</p>
+            <p><strong>Phone:</strong> {data.phone}</p>
+            <p><strong>Education:</strong> {data.education}</p>
+            <p><strong>Seat No:</strong> {data.seatNo}</p>
+          </div>
+        </div>
       </div>
 
       {/* Plan Selection */}
@@ -78,17 +123,17 @@ export default function StepReview({ data, onBack }: any) {
           return (
             <button
               key={key}
+              type="button"
               onClick={() => setPlan(key as any)}
               className={`w-full text-left rounded-xl border p-4 transition
-                ${selected
-                  ? "border-[#4DB6AC] bg-[#ECF8F6]"
-                  : "bg-white"
+                ${
+                  selected
+                    ? "border-[#4DB6AC] bg-[#ECF8F6]"
+                    : "bg-white"
                 }`}
             >
               <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  {p.label}
-                </span>
+                <span className="font-medium">{p.label}</span>
                 {selected && (
                   <span className="text-xs px-2 py-1 rounded-full bg-[#4DB6AC] text-white">
                     Selected
@@ -137,7 +182,10 @@ export default function StepReview({ data, onBack }: any) {
 
       {/* Actions */}
       <div className="flex gap-3 pt-2">
-        <button onClick={onBack} className="flex-1 border rounded-xl py-2">
+        <button
+          onClick={onBack}
+          className="flex-1 border rounded-xl py-2"
+        >
           Back
         </button>
 
@@ -154,6 +202,7 @@ export default function StepReview({ data, onBack }: any) {
         </button>
       </div>
 
+      {/* Trust Footer */}
       <p className="text-xs text-center text-gray-500 pt-2">
         🔒 Your information is safe and used only for admission purposes.
       </p>
