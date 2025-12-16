@@ -12,6 +12,10 @@ const API_URL =
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  useEffect(() => {
+  console.log("Selected student:", selectedStudentId);
+}, [selectedStudentId]);
+
   const [loading, setLoading] = useState(true);
 
   const fetchStudents = useCallback(async () => {
