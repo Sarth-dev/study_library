@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import PaymentCard from "@/src/components/admin/PaymentCard";
 
-const STUDENTS_API = process.env.NEXT_PUBLIC_API_URL_STUDENT ||  "http://localhost:5000/api/students";
+const STUDENTS_API = process.env.NEXT_PUBLIC_API_URL_STUDENT ||  "https://study-library.onrender.com/api/students";
 
 export default function AdminPaymentsPage() {
   const [students, setStudents] = useState<any[]>([]);

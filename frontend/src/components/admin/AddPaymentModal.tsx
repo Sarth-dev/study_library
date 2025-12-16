@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 
-const PAYMENT_API = process.env.NEXT_PUBLIC_API_URL_PAYMENTS|| "http://localhost:5000/api/payments";
+const PAYMENT_API = process.env.NEXT_PUBLIC_API_URL_PAYMENTS || "http://localhost:5000/api/payments";
 
 export default function AddPaymentModal({
   student,

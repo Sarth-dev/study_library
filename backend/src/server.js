@@ -2,6 +2,7 @@ const app = require('./app');
 const connectDB = require('./config/db');
 const initSeats = require('./utils/initSeats');
 
+
 require('dotenv').config(); 
 connectDB();
 // connectDB().then(() => {
