@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL_STUDENT || "http://localhost:5000/api/students";
+const API_URL = process.env.NEXT_PUBLIC_API_URL_STUDENT || "https://study-library.onrender.com/api/students";
 
 export default function StudentCard({
     student,

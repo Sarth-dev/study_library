@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import AddPaymentModal from "./AddPaymentModal";
 
-const DUE_API = process.env.NEXT_PUBLIC_API_URL_STUDENT || "http://localhost:5000/api/students";
+const DUE_API = process.env.NEXT_PUBLIC_API_URL_STUDENT || "https://study-library.onrender.com/api/students";
 
 export default function PaymentCard({
   student,
