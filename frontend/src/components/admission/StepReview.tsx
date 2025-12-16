@@ -5,14 +5,20 @@ import { submitAdmission } from "@/src/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function StepReview({ data, onBack }: any) {
+
+type StepReviewProps = {
+  data: any;
+  onBack: () => void;
+};
+
+export default function StepReview({ data, onBack }: StepReviewProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [consent, setConsent] = useState(false);
 
   console.log("PHOTO VALUE:", data.photo);
-console.log("PHOTO TYPE:", typeof data.photo);
+  console.log("PHOTO TYPE:", typeof data.photo);
 
   const [plan, setPlan] = useState<"FULL_TIME" | "HALF_TIME">("FULL_TIME");
 
@@ -126,10 +132,9 @@ console.log("PHOTO TYPE:", typeof data.photo);
               type="button"
               onClick={() => setPlan(key as any)}
               className={`w-full text-left rounded-xl border p-4 transition
-                ${
-                  selected
-                    ? "border-[#4DB6AC] bg-[#ECF8F6]"
-                    : "bg-white"
+                ${selected
+                  ? "border-[#4DB6AC] bg-[#ECF8F6]"
+                  : "bg-white"
                 }`}
             >
               <div className="flex justify-between items-center">

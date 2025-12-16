@@ -6,7 +6,14 @@ import { getSeats } from "@/src/lib/api";
 
 const TOTAL_SEATS = 70;
 
-export default function StepSeat({ data, onChange, onNext, onBack }: any) {
+type StepSeatProps = {
+  data: any;
+  onChange: (data: any) => void;
+  onNext: () => void;
+  onBack: () => void;
+};
+
+export default function StepSeat({ data, onChange, onNext, onBack }: StepSeatProps) {
   const [occupiedSeats, setOccupiedSeats] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
