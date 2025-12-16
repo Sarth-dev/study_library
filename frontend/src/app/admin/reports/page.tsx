@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getMonthlyReport, getDueReport } from "@/src/lib/reportApi";
 
 export default function ReportsPage() {
@@ -12,25 +12,45 @@ export default function ReportsPage() {
   const [dueData, setDueData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadReports();
-  }, [month]);
-
-  const loadReports = async () => {
+  // 🔁 reusable loader
+  const loadReports = useCallback(async () => {
     setLoading(true);
     try {
       const monthly = await getMonthlyReport(month);
       const due = await getDueReport();
       setMonthlyData(monthly);
       setDueData(due);
+    } catch (err) {
+      console.error("Failed to load reports", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [month]);
+
+  // initial load + auto refresh
+  useEffect(() => {
+    loadReports();
+
+    const interval = setInterval(() => {
+      loadReports();
+    }, 30_000); // ⏱ 30 seconds
+
+    return () => clearInterval(interval); // 🧹 cleanup
+  }, [loadReports]);
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Reports</h2>
+      {/* Header + Refresh */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h2 className="text-xl font-semibold">Reports</h2>
+
+        <button
+          onClick={loadReports}
+          className="self-start sm:self-auto text-sm px-3 py-1 rounded-md border"
+        >
+          Refresh
+        </button>
+      </div>
 
       {/* Month Selector */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -55,7 +75,6 @@ export default function ReportsPage() {
             ₹{monthlyData.totalCollection}
           </p>
 
-          {/* Responsive list */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {monthlyData.payments.map((p: any) => (
               <div
