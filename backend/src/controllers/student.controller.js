@@ -161,45 +161,53 @@ exports.approveStudent = async (req, res) => {
 
 //renewal seat
 exports.renewSeat = async (req, res) => {
-  try {
-    const { amount, paymentMode } = req.body;
-    const student = await Student.findById(req.params.id);
+  const { amount, paymentMode } = req.body;
+  const student = await Student.findById(req.params.id);
 
-    if (!student || student.status !== "ACTIVE") {
-      return res.status(400).json({ message: "Invalid student" });
-    }
-
-    const today = new Date();
-    const nextDue = new Date(today);
-    nextDue.setMonth(nextDue.getMonth() + 1);
-
-    student.lastRenewalDate = today;
-    student.nextDueDate = nextDue;
-
-    student.renewalHistory.push({
-      month: today.toISOString().slice(0, 7),
-      amount,
-      paymentMode,
-    });
-
-    await student.save();
-
-    // 📲 WhatsApp confirmation
-    const message =
-      ` Seat Renewed Successfully!\n\n` +
-      `${student.name}\n` +
-      `Seat No: ${student.seatNo}\n` +
-      ` Amount: ₹${amount}\n\n` +
-      ` Next Due: ${nextDue.toDateString()}\n\n` +
-      `— Team Study Plus 📚`;
-
-    const whatsappLink =
-      `https://wa.me/91${student.phone}?text=${encodeURIComponent(message)}`;
-
-    res.json({ success: true, whatsappLink });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  if (!student) {
+    return res.status(404).json({ message: "Student not found" });
   }
+
+  const today = new Date();
+  const nextDue = new Date(today);
+  nextDue.setMonth(nextDue.getMonth() + 1);
+
+  student.lastRenewalDate = today;
+  student.nextDueDate = nextDue;
+  student.monthlyFee = amount;
+  student.status = "ACTIVE";
+
+  student.history.push({
+    type: "RENEWAL",
+    amount,
+    note: `Payment via ${paymentMode}`,
+  });
+
+  await student.save();
+
+  const message =
+    `🔁 *Seat Renewed – Study Plus*\n\n` +
+    `👤 ${student.name}\n` +
+    `💺 Seat: ${student.seatNo}\n` +
+    `💰 ₹${amount} received\n\n` +
+    `📅 Next Due: ${nextDue.toDateString()}\n\n` +
+    `Happy studying! 📚`;
+
+  const whatsappLink =
+    `https://wa.me/91${student.phone}?text=${encodeURIComponent(message)}`;
+
+  res.json({ success: true, whatsappLink });
+};
+
+
+
+//get student profile
+exports.getStudentProfile = async (req, res) => {
+  const student = await Student.findById(req.params.id);
+  if (!student) {
+    return res.status(404).json({ message: "Student not found" });
+  }
+  res.json(student);
 };
 
 

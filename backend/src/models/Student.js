@@ -33,15 +33,16 @@ const studentSchema = new mongoose.Schema(
       type: Date,
     },
 
-    renewalHistory: [
+     // 🔥 FULL HISTORY
+    history: [
       {
-        month: String, // e.g. "2025-02"
-        amount: Number,
-        paymentMode: {
+        type: {
           type: String,
-          enum: ["CASH", "UPI"],
+          enum: ["ADMISSION", "RENEWAL", "HOLD", "EXIT"],
         },
-        renewedAt: {
+        amount: Number,
+        note: String,
+        createdAt: {
           type: Date,
           default: Date.now,
         },
