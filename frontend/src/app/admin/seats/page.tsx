@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import SeatGrid from "@/src/components/admin/SeatGrid";
 
-const SEATS_API = process.env.NEXT_PUBLIC_API_URL_SEAT || "http://localhost:5000/api/seats";
+const SEATS_API = process.env.NEXT_PUBLIC_API_URL_SEAT || "https://study-library.onrender.com/api/seats";
 
 export default function AdminSeatsPage() {
   const [seats, setSeats] = useState<any[]>([]);
