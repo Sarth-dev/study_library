@@ -139,10 +139,13 @@ exports.approveStudent = async (req, res) => {
 
     // whatsapp message
     const message =
-      `📚 Admission Approved!\n\n` +
-      `Name: ${student.name}\n` +
-      `Seat No: ${student.seatNo}\n\n` +
-      `Your seat is confirmed.\nHappy studying! ✨`;
+  `🎉 Welcome to *Study Plus*!\n\n` +
+  `Your admission has been *successfully approved* ✅\n\n` +
+  `👤 Name: ${student.name}\n` +
+  `💺 Seat No: ${student.seatNo}\n\n` +
+  `You now have a dedicated space to focus, learn, and grow in a calm study environment.\n\n` +
+  `📚 Wishing you consistency, clarity, and success ahead.\n\n` +
+  `— *Team Study Plus* ✨`;
 
     const whatsappLink = getWhatsAppLink(student.phone, message);
 
