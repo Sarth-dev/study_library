@@ -159,6 +159,50 @@ exports.approveStudent = async (req, res) => {
   }
 };
 
+//renewal seat
+exports.renewSeat = async (req, res) => {
+  try {
+    const { amount, paymentMode } = req.body;
+    const student = await Student.findById(req.params.id);
+
+    if (!student || student.status !== "ACTIVE") {
+      return res.status(400).json({ message: "Invalid student" });
+    }
+
+    const today = new Date();
+    const nextDue = new Date(today);
+    nextDue.setMonth(nextDue.getMonth() + 1);
+
+    student.lastRenewalDate = today;
+    student.nextDueDate = nextDue;
+
+    student.renewalHistory.push({
+      month: today.toISOString().slice(0, 7),
+      amount,
+      paymentMode,
+    });
+
+    await student.save();
+
+    // 📲 WhatsApp confirmation
+    const message =
+      ` Seat Renewed Successfully!\n\n` +
+      `${student.name}\n` +
+      `Seat No: ${student.seatNo}\n` +
+      ` Amount: ₹${amount}\n\n` +
+      ` Next Due: ${nextDue.toDateString()}\n\n` +
+      `— Team Study Plus 📚`;
+
+    const whatsappLink =
+      `https://wa.me/91${student.phone}?text=${encodeURIComponent(message)}`;
+
+    res.json({ success: true, whatsappLink });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 //exist student
 exports.exitStudent = async (req, res) => {
   try {

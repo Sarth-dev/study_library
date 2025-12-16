@@ -19,22 +19,21 @@ export default function StudentCard({
   // 🛡 HARD GUARD — prevents ALL runtime crashes
   if (!student || typeof student !== "object") return null;
 
-  const action = async (type: "approve" | "hold" | "exit") => {
-    if (!student._id) return;
+ const action = async (type: "approve" | "hold" | "exit" | "renew") => {
+  const res = await fetch(`${API_URL}/${student._id}/${type}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body:
+      type === "renew"
+        ? JSON.stringify({ amount: student.monthlyFee, paymentMode: "CASH" })
+        : undefined,
+  });
 
-    const res = await fetch(`${API_URL}/${student._id}/${type}`, {
-      method: "PUT",
-    });
+  const data = await res.json();
+  if (data.whatsappLink) window.open(data.whatsappLink, "_blank");
+  onUpdate();
+};
 
-    const data = await res.json();
-
-    // 🔥 Open WhatsApp if backend sends link
-    if (data?.whatsappLink) {
-      window.open(data.whatsappLink, "_blank");
-    }
-
-    onUpdate();
-  };
 
   const planStyles: Record<
     string,
@@ -163,6 +162,15 @@ export default function StudentCard({
             Change Plan
           </button>
         )}
+        {student.status === "ACTIVE" && (
+          <button
+            onClick={() => action("renew")}
+            className="flex-1 rounded-lg py-1 text-sm text-white bg-[#4DB6AC]"
+          >
+            Renew Seat
+          </button>
+        )}
+
 
         {student.status === "ACTIVE" && (
           <button

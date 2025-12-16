@@ -4,7 +4,7 @@ const upload = require('../middleware/upload.middleware');
 const { getStudentDue } = require('../controllers/student.controller');
 const { createStudent } = require('../controllers/student.controller');
 const { getAllStudents } = require('../controllers/student.controller')
-const { exitStudent, changeStudentPlan } = require('../controllers/student.controller')
+const { exitStudent, changeStudentPlan, renewSeat } = require('../controllers/student.controller')
 const {
   holdStudent,
 } = require("../controllers/student.controller");
@@ -18,6 +18,7 @@ router.put("/:id/hold", holdStudent);
 router.put("/:id/approve", approveStudent);
 router.put("/:id/exit", exitStudent);
 router.put("/:id/plan", changeStudentPlan);
+router.put("/:id/renew", renewSeat);
 
 
 module.exports = router;

@@ -25,6 +25,29 @@ const studentSchema = new mongoose.Schema(
       enum: ["FULL_TIME", "HALF_TIME"],
       required: true,
     },
+    lastRenewalDate: {
+      type: Date,
+    },
+
+    nextDueDate: {
+      type: Date,
+    },
+
+    renewalHistory: [
+      {
+        month: String, // e.g. "2025-02"
+        amount: Number,
+        paymentMode: {
+          type: String,
+          enum: ["CASH", "UPI"],
+        },
+        renewedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
 
     status: {
       type: String,
