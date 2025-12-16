@@ -4,10 +4,10 @@ const initSeats = require('./utils/initSeats');
 
 
 require('dotenv').config(); 
-connectDB();
-// connectDB().then(() => {
-//   initSeats(100);
-// });
+// connectDB();
+connectDB().then(() => {
+  initSeats(67);
+});
 
 
 const PORT = process.env.PORT || 5000;

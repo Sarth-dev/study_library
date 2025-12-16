@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { getSeats } from "@/src/lib/api";
 
-const TOTAL_SEATS = 70;
+const TOTAL_SEATS = 67;
 
 type StepSeatProps = {
   data: any;
