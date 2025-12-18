@@ -53,16 +53,15 @@ export default function AdminPaymentsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {students
-          .filter((s) => s.status === "ACTIVE")
-          .map((student) => (
-            <PaymentCard
-              key={student._id}
-              student={student}
-              onUpdate={fetchStudents}
-            />
-          ))}
+        {students.map((student) => (
+          <PaymentCard
+            key={student._id}
+            student={student}
+            onUpdate={fetchStudents}
+          />
+        ))}
       </div>
+
     </div>
   );
 }
