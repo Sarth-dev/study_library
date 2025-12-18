@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import StudentCard from "@/src/components/admin/StudentCard";
+import { useRouter } from "next/navigation";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL_STUDENT ||
@@ -12,6 +13,9 @@ export default function AdminStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(""); // 🔍 search state
+
+
+  const router = useRouter();
 
   const fetchStudents = useCallback(async () => {
     try {
@@ -72,9 +76,8 @@ export default function AdminStudentsPage() {
             <StudentCard
               key={student._id}
               student={student}
-              onUpdate={fetchStudents} onOpenProfile={function (): void {
-                throw new Error("Function not implemented.");
-              } }            />
+              onUpdate={fetchStudents}
+              onOpenProfile={(id) => router.push(`/admin/students/${id}`)} />
           ))}
       </div>
     </div>

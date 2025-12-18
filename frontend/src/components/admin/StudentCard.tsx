@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
- 
+"use client";
+
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
-"use client";
 
 import { useState } from "react";
 
@@ -10,11 +10,10 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_URL_STUDENT ||
   "https://study-library.onrender.com/api/students";
 
-/* ✅ PROPS TYPE */
 type StudentCardProps = {
   student: any;
   onUpdate: () => void;
-  onOpenProfile: () => void;
+  onOpenProfile: (id: string) => void;
 };
 
 export default function StudentCard({
@@ -22,6 +21,7 @@ export default function StudentCard({
   onUpdate,
   onOpenProfile,
 }: StudentCardProps) {
+  // 🛡 HARD GUARD
   if (!student || typeof student !== "object") return null;
 
   const action = async (type: "approve" | "hold" | "exit" | "renew") => {
@@ -30,23 +30,29 @@ export default function StudentCard({
       headers: { "Content-Type": "application/json" },
       body:
         type === "renew"
-          ? JSON.stringify({ amount: student.monthlyFee, paymentMode: "CASH" })
+          ? JSON.stringify({
+              amount: student.monthlyFee,
+              paymentMode: "CASH",
+            })
           : undefined,
     });
 
     const data = await res.json();
-    if (data?.whatsappLink) window.open(data.whatsappLink, "_blank");
+    if (data?.whatsappLink) {
+      window.open(data.whatsappLink, "_blank");
+    }
     onUpdate();
   };
 
   return (
     <div className="rounded-xl bg-white border p-4 space-y-2">
-      {/* HEADER */}
+      {/* HEADER – clickable */}
       <div
         className="flex justify-between items-start gap-3 cursor-pointer"
-        onClick={onOpenProfile}
+        onClick={() => onOpenProfile(student._id)}
       >
         <div className="flex items-center gap-3">
+          {/* 👤 Student Image */}
           <div className="h-12 w-12 rounded-full overflow-hidden border bg-gray-100 flex items-center justify-center">
             {student.photo?.url ? (
               <img
@@ -55,10 +61,13 @@ export default function StudentCard({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="text-[10px] text-gray-400">No Photo</span>
+              <span className="text-[10px] text-gray-400">
+                No Photo
+              </span>
             )}
           </div>
 
+          {/* Name + Seat */}
           <div>
             <h3 className="font-medium">
               {student.name || "Unnamed Student"}
@@ -69,12 +78,13 @@ export default function StudentCard({
           </div>
         </div>
 
+        {/* Status */}
         <span className="text-xs px-2 py-1 rounded-full bg-gray-100">
           {(student.status || "UNKNOWN").replace("_", " ")}
         </span>
       </div>
 
-      {/* ACTIONS */}
+      {/* ACTIONS (STOP PROPAGATION) */}
       <div
         className="flex gap-2 pt-2"
         onClick={(e) => e.stopPropagation()}
