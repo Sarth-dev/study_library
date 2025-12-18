@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -10,39 +11,58 @@ const API_URL =
   "https://study-library.onrender.com/api/students";
 
 export default function StudentProfilePage() {
-  const { id } = useParams(); // studentId from URL
+  const { id } = useParams();
   const router = useRouter();
 
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
 
-    fetch(`${API_URL}/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Student not found");
-        return res.json();
-      })
-      .then((data) => setStudent(data))
-      .catch((err) => {
-        console.error(err);
+    const loadStudent = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch(`${API_URL}/${id}`);
+
+        if (!res.ok) {
+          throw new Error("Student not found");
+        }
+
+        const data = await res.json();
+        setStudent(data);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load student:", err);
+        setError("Student not found or removed");
         setStudent(null);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStudent();
   }, [id]);
 
+  /* ---------------- UI STATES ---------------- */
+
   if (loading) {
-    return <p className="text-center mt-10">Loading student profile…</p>;
+    return (
+      <p className="text-center mt-10 text-gray-500">
+        Loading student profile…
+      </p>
+    );
   }
 
-  if (!student) {
+  if (error) {
     return (
-      <div className="text-center mt-10">
-        <p className="text-red-500">Student not found</p>
+      <div className="text-center mt-10 space-y-3">
+        <p className="text-red-500">{error}</p>
         <button
           onClick={() => router.back()}
-          className="mt-4 text-sm text-blue-600"
+          className="text-sm text-blue-600"
         >
           ← Go back
         </button>
@@ -50,9 +70,13 @@ export default function StudentProfilePage() {
     );
   }
 
+  if (!student) return null;
+
+  /* ---------------- MAIN UI ---------------- */
+
   return (
     <div className="max-w-xl mx-auto space-y-5">
-      {/* Back button */}
+      {/* Back */}
       <button
         onClick={() => router.back()}
         className="text-sm text-blue-600"
@@ -61,7 +85,7 @@ export default function StudentProfilePage() {
       </button>
 
       {/* Profile Card */}
-      <div className="rounded-xl bg-white border p-5 space-y-3">
+      <div className="rounded-xl bg-white border p-5 space-y-4">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-full overflow-hidden border bg-gray-100">
             {student.photo?.url ? (
@@ -97,7 +121,7 @@ export default function StudentProfilePage() {
           {new Date(student.admissionDate).toLocaleDateString()}
         </p>
 
-        <span className="inline-block mt-2 text-xs px-2 py-1 rounded-full bg-gray-100">
+        <span className="inline-block text-xs px-2 py-1 rounded-full bg-gray-100">
           Status: {student.status.replace("_", " ")}
         </span>
       </div>
