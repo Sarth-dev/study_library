@@ -267,7 +267,7 @@ console.log("Updated details:",req.body)
         runValidators: true,
       }
     );
-    console.log("update detail after:",student)
+   
 
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
