@@ -1,10 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { submitAdmission } from "@/src/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 
 type StepReviewProps = {
   data: any;
@@ -17,39 +17,45 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
   const [error, setError] = useState("");
   const [consent, setConsent] = useState(false);
 
-  console.log("PHOTO VALUE:", data.photo);
-  console.log("PHOTO TYPE:", typeof data.photo);
-
-  const [plan, setPlan] = useState<"FULL_TIME" | "HALF_TIME">("FULL_TIME");
+  /* ---------------- PLAN CONFIG ---------------- */
 
   const plans = {
     FULL_TIME: {
+      label: "Full Time",
       fee: 800,
       dueDate: 1,
-      label: "Full Time",
-      desc: "Unlimited study hours",
+      desc: "Unlimited study hours with a fixed seat",
+      seatRequired: true,
     },
     HALF_TIME: {
+      label: "Half Time",
       fee: 500,
       dueDate: 1,
-      label: "Half Time",
-      desc: "Limited daily hours",
+      desc: "Limited daily hours · Temporary Seat Allocation",
+      seatRequired: false,
     },
   };
 
-  // 🔥 Photo preview from StepPhoto
+  type PlanType = "FULL_TIME" | "HALF_TIME";
+
+  const planType: PlanType =
+    data.planType === "HALF_TIME" ? "HALF_TIME" : "FULL_TIME";
+
+  const selectedPlan = plans[planType];
+
+  /* ---------------- PHOTO PREVIEW ---------------- */
+
   const photoPreview = data.photo
     ? URL.createObjectURL(data.photo)
     : null;
 
-  // Cleanup preview URL
   useEffect(() => {
     return () => {
-      if (photoPreview) {
-        URL.revokeObjectURL(photoPreview);
-      }
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
     };
   }, [photoPreview]);
+
+  /* ---------------- SUBMIT ---------------- */
 
   const submit = async () => {
     if (!consent) return;
@@ -58,15 +64,16 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
     setError("");
 
     try {
-      const selectedPlan = plans[plan];
-
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("phone", data.phone);
       formData.append("education", data.education);
-      formData.append("seatNo", data.seatNo);
 
-      formData.append("planType", plan);
+      if (selectedPlan.seatRequired) {
+        formData.append("seatNo", data.seatNo);
+      }
+
+      formData.append("planType", data.planType);
       formData.append("monthlyFee", String(selectedPlan.fee));
       formData.append("dueDate", String(selectedPlan.dueDate));
       formData.append("whatsappConsent", String(consent));
@@ -84,17 +91,19 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
     }
   };
 
+  /* ---------------- UI ---------------- */
+
   return (
     <div className="space-y-6 text-sm">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-lg font-semibold">Review & Choose Plan</h2>
+        <h2 className="text-lg font-semibold">Review Your Admission</h2>
         <p className="text-xs text-gray-500">
-          Please verify your details before submitting
+          Please verify all details before submitting
         </p>
       </div>
 
-      {/* Student Info + Photo */}
+      {/* Student Info */}
       <div className="rounded-xl border p-4 bg-white">
         <div className="flex items-center gap-4">
           {/* Photo */}
@@ -115,47 +124,25 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
             <p><strong>Name:</strong> {data.name}</p>
             <p><strong>Phone:</strong> {data.phone}</p>
             <p><strong>Education:</strong> {data.education}</p>
-            <p><strong>Seat No:</strong> {data.seatNo}</p>
+            {selectedPlan.seatRequired && (
+              <p><strong>Seat No:</strong> {data.seatNo}</p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Plan Selection */}
-      <div className="space-y-3">
-        <h3 className="font-medium">Choose Your Study Plan</h3>
+      {/* Plan Summary */}
+      <div className="rounded-xl border p-4 bg-[#F9FAFB] space-y-2">
+        <h3 className="font-medium">Selected Plan</h3>
 
-        {Object.entries(plans).map(([key, p]) => {
-          const selected = plan === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setPlan(key as any)}
-              className={`w-full text-left rounded-xl border p-4 transition
-                ${selected
-                  ? "border-[#4DB6AC] bg-[#ECF8F6]"
-                  : "bg-white"
-                }`}
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{p.label}</span>
-                {selected && (
-                  <span className="text-xs px-2 py-1 rounded-full bg-[#4DB6AC] text-white">
-                    Selected
-                  </span>
-                )}
-              </div>
+        <p className="text-base font-semibold text-[#4DB6AC]">
+          {selectedPlan.label}
+        </p>
 
-              <p className="mt-2">💰 ₹{p.fee} / month</p>
-              <p className="text-xs text-gray-600">
-                📅 Due on {p.dueDate}st · {p.desc}
-              </p>
-            </button>
-          );
-        })}
-
-        <p className="text-xs text-gray-500">
-          Transparent pricing · No hidden charges
+        <p>💰 <strong>Monthly Fee:</strong> ₹{selectedPlan.fee}</p>
+        <p>📅 <strong>Due Date:</strong> {selectedPlan.dueDate}st of every month</p>
+        <p className="text-xs text-gray-600">
+          {selectedPlan.desc}
         </p>
       </div>
 
