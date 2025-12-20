@@ -234,7 +234,51 @@ exports.getStudentById = async (req, res) => {
   }
 };
 
+//update student
+exports.updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+console.log("Updated details:",req.body)
+    const allowedUpdates = [
+      "name",
+      "phone",
+      "education",
+      "seatNo",
+      "monthlyFee",
+      "dueDate",
+      "admissionDate",
+      "planType",
+      "status",
+    ];
 
+    const updates = {};
+
+    allowedUpdates.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    const student = await Student.findByIdAndUpdate(
+      id,
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    console.log("update detail after:",student)
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json(student);
+  } catch (err) {
+    console.error("Update student error:", err);
+    res.status(500).json({ message: "Failed to update student" });
+  }
+};
 
 
 //exist student
