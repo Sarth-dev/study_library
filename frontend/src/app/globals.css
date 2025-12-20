@@ -11,6 +11,10 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+* {
+  transition: all 0.2s ease-in-out;
+}
+
 
 @media (prefers-color-scheme: dark) {
   :root {

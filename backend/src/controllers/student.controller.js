@@ -238,7 +238,6 @@ exports.getStudentById = async (req, res) => {
 exports.updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
-console.log("Updated details:",req.body)
     const allowedUpdates = [
       "name",
       "phone",

@@ -33,7 +33,7 @@ const studentSchema = new mongoose.Schema(
       type: Date,
     },
 
-     // 🔥 FULL HISTORY
+     // FULL HISTORY
     history: [
       {
         type: {
