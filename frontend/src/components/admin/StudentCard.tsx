@@ -1,10 +1,8 @@
 "use client";
 
-/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
-import { useState } from "react";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL_STUDENT ||

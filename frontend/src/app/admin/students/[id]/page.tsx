@@ -1,10 +1,9 @@
 /* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 const API_URL =
@@ -25,7 +24,7 @@ export default function StudentProfilePage() {
 
   /* ---------------- LOAD STUDENT ---------------- */
 
-  const loadStudent = async () => {
+  const loadStudent = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_URL}/${id}`);
@@ -41,11 +40,17 @@ export default function StudentProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
-    if (id) loadStudent();
-  }, [id]);
+    if (!id) return;
+
+    const initialLoad = setTimeout(() => {
+      void loadStudent();
+    }, 0);
+
+    return () => clearTimeout(initialLoad);
+  }, [id, loadStudent]);
 
   /* ---------------- SAVE EDITS ---------------- */
 

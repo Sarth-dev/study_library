@@ -1,16 +1,23 @@
+require('dotenv').config();
+
 const app = require('./app');
 const connectDB = require('./config/db');
 const initSeats = require('./utils/initSeats');
 
-
-require('dotenv').config(); 
-// connectDB();
-connectDB().then(() => {
-  initSeats(67);
-});
-
-
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+async function startServer() {
+  try {
+    await connectDB();
+    await initSeats(67);
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Server startup failed:', error.message);
+    process.exit(1);
+  }
+}
+
+startServer();

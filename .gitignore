@@ -55,3 +55,7 @@ Thumbs.db
 # Vercel
 # ================================
 .vercel
+
+# Generated dependency audit reports
+frontend/audit-report.json
+frontend/npm-audit-report.json

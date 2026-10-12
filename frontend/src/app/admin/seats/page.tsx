@@ -27,13 +27,18 @@ export default function AdminSeatsPage() {
 
   // initial load + auto refresh
   useEffect(() => {
-    fetchSeats();
+    const initialLoad = setTimeout(() => {
+      void fetchSeats();
+    }, 0);
 
     const interval = setInterval(() => {
-      fetchSeats();
-    }, 30_000); // ⏱ 30 seconds
+      void fetchSeats();
+    }, 30_000);
 
-    return () => clearInterval(interval); // 🧹 cleanup
+    return () => {
+      clearTimeout(initialLoad);
+      clearInterval(interval);
+    };
   }, [fetchSeats]);
 
   if (loading) return <p>Loading seat map...</p>;

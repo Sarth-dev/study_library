@@ -29,13 +29,18 @@ export default function ReportsPage() {
 
   // initial load + auto refresh
   useEffect(() => {
-    loadReports();
+    const initialLoad = setTimeout(() => {
+      void loadReports();
+    }, 0);
 
     const interval = setInterval(() => {
-      loadReports();
-    }, 30_000); // ⏱ 30 seconds
+      void loadReports();
+    }, 30_000);
 
-    return () => clearInterval(interval); // 🧹 cleanup
+    return () => {
+      clearTimeout(initialLoad);
+      clearInterval(interval);
+    };
   }, [loadReports]);
 
   return (

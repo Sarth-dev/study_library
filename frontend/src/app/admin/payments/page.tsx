@@ -27,13 +27,18 @@ export default function AdminPaymentsPage() {
 
   // initial load + auto refresh
   useEffect(() => {
-    fetchStudents();
+    const initialLoad = setTimeout(() => {
+      void fetchStudents();
+    }, 0);
 
     const interval = setInterval(() => {
-      fetchStudents();
-    }, 30_000); // ⏱ 30 seconds
+      void fetchStudents();
+    }, 30_000);
 
-    return () => clearInterval(interval); // 🧹 cleanup
+    return () => {
+      clearTimeout(initialLoad);
+      clearInterval(interval);
+    };
   }, [fetchStudents]);
 
   if (loading) return <p>Loading payments...</p>;

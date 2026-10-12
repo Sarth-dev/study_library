@@ -30,7 +30,11 @@ export default function AdminStudentsPage() {
   }, []);
 
   useEffect(() => {
-    fetchStudents();
+    const initialLoad = setTimeout(() => {
+      void fetchStudents();
+    }, 0);
+
+    return () => clearTimeout(initialLoad);
   }, [fetchStudents]);
 
   // 🔎 filter students by name

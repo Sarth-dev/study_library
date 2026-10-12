@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import StatCard from "@/src/components/admin/StateCard";
 import { getDashboardStats } from "@/src/lib/adminApi";
 import Link from "next/link";
@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const data = await getDashboardStats();
       setStats(data);
@@ -30,18 +30,25 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     // initial load
-    fetchStats();
+    const initialLoad = setTimeout(() => {
+      void fetchStats();
+    }, 0);
 
     // polling
-    const interval = setInterval(fetchStats, REFRESH_INTERVAL);
+    const interval = setInterval(() => {
+      void fetchStats();
+    }, REFRESH_INTERVAL);
 
     // cleanup (VERY IMPORTANT)
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearTimeout(initialLoad);
+      clearInterval(interval);
+    };
+  }, [fetchStats]);
 
   if (loading && !stats) {
     return <p className="text-center">Loading dashboard...</p>;

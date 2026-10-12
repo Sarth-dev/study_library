@@ -1,0 +1,63 @@
+services:
+  mongodb:
+    image: mongo:8
+    restart: unless-stopped
+    environment:
+       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Set MONGO_ROOT_USERNAME in .env}
+       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set MONGO_ROOT_PASSWORD in .env}
+    volumes:
+       - mongodb_data:/data/db
+    networks:
+       - study-library
+    healthcheck:
+       test:
+         [
+           "CMD",
+           "mongosh",
+           "--quiet",
+           "--eval",
+           "db.adminCommand('ping').ok"
+         ]
+       interval: 10s
+       timeout: 5s
+       retries: 5
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: study-library-backend:dev
+    restart: unless-stopped
+    environment:
+       NODE_ENV: production
+       PORT: 5000
+       MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/study_library?authSource=admin
+       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+    ports:
+       - "5000:5000"
+    depends_on:
+       mongodb:
+         condition: service_healthy
+    networks:
+       - study-library
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5000/api
+    image: study-library-frontend:dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - study-library
+
+networks:
+  study-library:
+
+volumes:
+  mongodb_data:

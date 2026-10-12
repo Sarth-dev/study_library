@@ -1,0 +1,12 @@
+
+**/node_modules
+frontend/.next
+**/coverage
+.git
+**/.git
+**/.env
+**/.env.*
+!**/.env.example
+**/npm-debug.log*
+frontend/audit-report.json
+frontend/npm-audit-report.json
